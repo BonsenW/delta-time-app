@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Calculator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f8f8;
+            /* Light grey background, similar to Notion */
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center p-4 space-y-8">
+    <!-- Section 1: Current Time Calculator -->
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-200">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Current Time Adjuster</h1>
+
+        <div class="mb-6">
+            <label for="currentTime" class="block text-sm font-medium text-gray-600 mb-2">Current Time:</label>
+            <p id="currentTime"
+                class="text-2xl font-semibold text-gray-900 bg-gray-50 p-3 rounded-lg border border-gray-200"></p>
+        </div>
+
+        <div class="mb-8">
+            <label for="deltaHoursInput" class="block text-sm font-medium text-gray-600 mb-2">
+                Adjust Hours (e.g., -2 for 2 hours before, 3 for 3 hours after):
+            </label>
+            <input type="number" id="deltaHoursInput" value="0"
+                class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-lg transition duration-150 ease-in-out"
+                placeholder="Enter hours to add or subtract">
+        </div>
+
+        <div>
+            <label for="adjustedTime" class="block text-sm font-medium text-gray-600 mb-2">Adjusted Time:</label>
+            <p id="adjustedTime"
+                class="text-4xl font-extrabold text-blue-700 bg-blue-50 p-4 rounded-xl border border-blue-200 text-center">
+            </p>
+        </div>
+    </div>
+
+    <!-- Section 2: Arbitrary Time Calculator -->
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-200">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Custom Time Calculator</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label for="baseDateInput" class="block text-sm font-medium text-gray-600 mb-2">Base Date:</label>
+                <input type="date" id="baseDateInput"
+                    class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-lg transition duration-150 ease-in-out">
+            </div>
+            <div>
+                <label for="baseTimeInput" class="block text-sm font-medium text-gray-600 mb-2">Base Time:</label>
+                <input type="time" id="baseTimeInput"
+                    class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-lg transition duration-150 ease-in-out">
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <label for="arbitraryDeltaHoursInput" class="block text-sm font-medium text-gray-600 mb-2">
+                Adjust Hours:
+            </label>
+            <input type="number" id="arbitraryDeltaHoursInput" value="0"
+                class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-lg transition duration-150 ease-in-out"
+                placeholder="Enter hours to add or subtract">
+        </div>
+
+        <div>
+            <label for="arbitraryAdjustedTime" class="block text-sm font-medium text-gray-600 mb-2">Adjusted Custom
+                Time:</label>
+            <p id="arbitraryAdjustedTime"
+                class="text-4xl font-extrabold text-purple-700 bg-purple-50 p-4 rounded-xl border border-purple-200 text-center">
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // --- Common Functions ---
+        /**
+         * Formats a Date object into a readable time string.
+         * @param {Date} date - The Date object to format.
+         * @returns {string} The formatted time string (e.g., "HH:MM:SS AM/PM on Mon, Jan 1, 2024").
+         */
+        function formatTime(date) {
+            const options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true, // Use 12-hour format with AM/PM
+                weekday: 'short', // e.g., Mon
+                month: 'short',   // e.g., Jan
+                day: 'numeric',   // e.g., 1
+                year: 'numeric'   // e.g., 2024
+            };
+            return date.toLocaleString(undefined, options);
+        }
+
+        // --- Section 1: Current Time Calculator Logic ---
+        const currentTimeElem = document.getElementById('currentTime');
+        const deltaHoursInput = document.getElementById('deltaHoursInput');
+        const adjustedTimeElem = document.getElementById('adjustedTime');
+
+        /**
+         * Updates the displayed current times and the document title based on the input delta.
+         */
+        function updateCurrentTimeCalculator() {
+            const now = new Date(); // Get the current date and time
+            currentTimeElem.textContent = formatTime(now); // Display the current time
+
+            const deltaHours = parseFloat(deltaHoursInput.value || '0'); // Get the delta hours from the input
+
+            // Create a new Date object for calculation to avoid modifying 'now'
+            const adjustedDate = new Date(now.getTime() + (deltaHours * 60 * 60 * 1000)); // Add delta hours in milliseconds
+
+            const formattedAdjustedTime = formatTime(adjustedDate);
+            adjustedTimeElem.textContent = formattedAdjustedTime; // Display the adjusted time
+
+            document.title = `${formattedAdjustedTime}`; // Update the page title
+        }
+
+        // Initial call to display times when the page loads for the current time calculator
+        updateCurrentTimeCalculator();
+
+        // Update times every second to keep current time live
+        setInterval(updateCurrentTimeCalculator, 1000);
+
+        // Update times whenever the delta hours input changes for the current time calculator
+        deltaHoursInput.addEventListener('input', updateCurrentTimeCalculator);
+
+
+        // --- Section 2: Arbitrary Time Calculator Logic ---
+        const baseDateInput = document.getElementById('baseDateInput');
+        const baseTimeInput = document.getElementById('baseTimeInput');
+        const arbitraryDeltaHoursInput = document.getElementById('arbitraryDeltaHoursInput');
+        const arbitraryAdjustedTimeElem = document.getElementById('arbitraryAdjustedTime');
+
+        /**
+         * Initializes the base date and time inputs with the current date and time.
+         */
+        function initializeArbitraryInputs() {
+            const now = new Date();
+            // Format date to YYYY-MM-DD for input type="date"
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            baseDateInput.value = `${year}-${month}-${day}`;
+
+            // Format time to HH:MM for input type="time"
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            baseTimeInput.value = `${hours}:${minutes}`;
+        }
+
+        /**
+         * Calculates and updates the arbitrary adjusted time based on user inputs.
+         */
+        function updateArbitraryTimeCalculator() {
+            const dateValue = baseDateInput.value;
+            const timeValue = baseTimeInput.value;
+            const deltaHours = parseFloat(arbitraryDeltaHoursInput.value || '0');
+
+            if (!dateValue || !timeValue) {
+                arbitraryAdjustedTimeElem.textContent = "Please select a base date and time.";
+                return;
+            }
+
+            // Combine date and time strings to create a valid Date object
+            const baseDateTime = new Date(`${dateValue}T${timeValue}:00`); // :00 for seconds to ensure valid ISO 8601 string
+
+            if (isNaN(baseDateTime.getTime())) { // Check if the date is valid
+                arbitraryAdjustedTimeElem.textContent = "Invalid date or time.";
+                return;
+            }
+
+            // Calculate adjusted time
+            const adjustedDate = new Date(baseDateTime.getTime() + (deltaHours * 60 * 60 * 1000));
+
+            arbitraryAdjustedTimeElem.textContent = formatTime(adjustedDate);
+        }
+
+        // Initialize inputs for the arbitrary calculator on load
+        initializeArbitraryInputs();
+        // Perform initial calculation for the arbitrary calculator
+        updateArbitraryTimeCalculator();
+
+        // Add event listeners for arbitrary time calculator inputs
+        baseDateInput.addEventListener('input', updateArbitraryTimeCalculator);
+        baseTimeInput.addEventListener('input', updateArbitraryTimeCalculator);
+        arbitraryDeltaHoursInput.addEventListener('input', updateArbitraryTimeCalculator);
+    </script>
+</body>
+
+</html>
